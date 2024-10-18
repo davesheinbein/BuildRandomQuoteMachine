@@ -1,0 +1,49 @@
+document.addEventListener("DOMContentLoaded", () => {
+  const quoteText = document.getElementById("text");
+  const quoteAuthor = document.getElementById("author");
+  const newQuoteButton = document.getElementById("new-quote");
+  const tweetQuoteButton = document.getElementById("tweet-quote");
+
+  // Fallback default quote and author for fast initial loading
+  const fallbackQuote =
+    "Life is what happens when you're busy making other plans.";
+  const fallbackAuthor = "John Lennon";
+
+  // Initialize the tweet button's href with the fallback quote
+  tweetQuoteButton.href = `https://twitter.com/intent/tweet?text="${encodeURIComponent(
+    fallbackQuote
+  )}" - ${encodeURIComponent(fallbackAuthor)}`;
+
+  // Function to fetch random quotes from the API
+  const fetchQuote = () => {
+    fetch("https://api.quotable.io/random")
+      .then((response) => response.json())
+      .then((data) => {
+        // Set fetched quote and author
+        quoteText.textContent = data.content || fallbackQuote;
+        quoteAuthor.textContent = data.author
+          ? `— ${data.author}`
+          : `— ${fallbackAuthor}`;
+
+        // Update the tweet button with the new quote
+        tweetQuoteButton.href = `https://twitter.com/intent/tweet?text="${encodeURIComponent(
+          data.content || fallbackQuote
+        )}" - ${encodeURIComponent(data.author || fallbackAuthor)}`;
+      })
+      .catch((err) => {
+        // In case of an error, show the fallback content
+        console.error(err);
+        quoteText.textContent = fallbackQuote;
+        quoteAuthor.textContent = `— ${fallbackAuthor}`;
+        tweetQuoteButton.href = `https://twitter.com/intent/tweet?text="${encodeURIComponent(
+          fallbackQuote
+        )}" - ${encodeURIComponent(fallbackAuthor)}`;
+      });
+  };
+
+  // Initial quote fetch on page load
+  fetchQuote();
+
+  // Fetch a new quote when the button is clicked
+  newQuoteButton.addEventListener("click", fetchQuote);
+});
